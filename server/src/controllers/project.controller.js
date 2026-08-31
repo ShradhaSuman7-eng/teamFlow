@@ -43,4 +43,20 @@ const updateProjectById = async (req, res) => {
   });
 };
 
-export { createProject, getProjects, getProjectById, updateProjectById };
+const deleteProjectById = async (req, res) => {
+  const project = await projectService.deleteProjectById(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Project deleted successfully",
+    data: project,
+  });
+};
+
+export {
+  createProject,
+  getProjects,
+  getProjectById,
+  updateProjectById,
+  deleteProjectById,
+};

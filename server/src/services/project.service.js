@@ -35,9 +35,21 @@ const updateProjectById = async (id, updateData) => {
 
   return project;
 };
+
+const deleteProjectById = async (id) => {
+  const project = await Project.findByIdAndDelete(id);
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  return project;
+};
+
 export default {
   createProject,
   getProjects,
   getProjectById,
   updateProjectById,
+  deleteProjectById,
 };

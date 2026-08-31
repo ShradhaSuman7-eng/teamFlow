@@ -5,6 +5,7 @@ import {
   getProjects,
   getProjectById,
   updateProjectById,
+  deleteProjectById,
 } from "../controllers/project.controller.js";
 
 import validateProject from "../middleware/validateProject.js";
@@ -18,5 +19,6 @@ router.get("/", getProjects);
 router.get("/:id", getProjectById);
 
 router.patch("/:id", updateProjectById);
+router.delete("/:id", deleteProjectById);
 
 export default router;
