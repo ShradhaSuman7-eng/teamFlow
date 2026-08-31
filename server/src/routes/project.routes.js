@@ -1,9 +1,14 @@
 import express from "express";
+
+import {
+  createProject,
+  getProjects,
+} from "../controllers/project.controller.js";
 import validateProject from "../middleware/validateProject.js";
-import createProject from "../controllers/project.controller.js";
 
 const router = express.Router();
 
 router.post("/", validateProject, createProject);
+router.get("/", getProjects);
 
 export default router;

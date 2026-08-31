@@ -5,9 +5,19 @@ const createProject = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Project created successFully",
+    message: "Project created successfully",
     data: project,
   });
 };
 
-export default createProject;
+const getProjects = async (req, res) => {
+  const projects = await projectService.getProjects();
+
+  res.status(200).json({
+    success: true,
+    message: "Projects fetched successfully",
+    data: projects,
+  });
+};
+
+export { createProject, getProjects };
