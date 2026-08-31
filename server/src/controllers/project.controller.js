@@ -11,12 +11,23 @@ const createProject = async (req, res) => {
 };
 
 const getProjects = async (req, res) => {
-  const projects = await projectService.getProjects();
+  const { page, limit } = req.pagination;
+  const { status, priority, sort, order } = req.query;
+
+  const result = await projectService.getProjects(
+    page,
+    limit,
+    status,
+    priority,
+    sort,
+    order,
+  );
 
   res.status(200).json({
     success: true,
     message: "Projects fetched successfully",
-    data: projects,
+    data: result.projects,
+    pagination: result.pagination,
   });
 };
 

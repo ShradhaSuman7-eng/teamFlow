@@ -9,12 +9,13 @@ import {
 } from "../controllers/project.controller.js";
 
 import validateProject from "../middleware/validateProject.js";
+import paginationmiddleware from "../middleware/pagination.middleware.js";
 
 const router = express.Router();
 
 router.post("/", validateProject, createProject);
 
-router.get("/", getProjects);
+router.get("/", paginationmiddleware, getProjects);
 
 router.get("/:id", getProjectById);
 

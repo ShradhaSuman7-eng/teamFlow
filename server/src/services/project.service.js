@@ -6,13 +6,44 @@ const createProject = async (projectData) => {
 
   return project;
 };
+const getProjects = async (page, limit, status, priority, sort, order) => {
+  const skip = (page - 1) * limit;
 
-const getProjects = async () => {
-  const projects = await Project.find();
+  const filter = {};
 
-  return projects;
+  if (status) {
+    filter.status = status;
+  }
+
+  if (priority) {
+    filter.priority = priority;
+  }
+
+  const sortOptions = {};
+
+  if (sort) {
+    sortOptions[sort] = order === "asc" ? 1 : -1;
+  }
+
+  const projects = await Project.find(filter)
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(limit);
+
+  const totalProjects = await Project.countDocuments(filter);
+
+  const totalPages = Math.ceil(totalProjects / limit);
+
+  return {
+    projects,
+    pagination: {
+      page,
+      limit,
+      totalProjects,
+      totalPages,
+    },
+  };
 };
-
 const getProjectById = async (id) => {
   const project = await Project.findById(id);
 
