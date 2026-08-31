@@ -2,6 +2,7 @@ import express from "express";
 import healthRoute from "./routes/health.routes.js";
 import logger from "./middleware/logger.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
+import projectRoute from "./routes/project.routes.js";
 
 const app = express();
 
@@ -13,7 +14,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", healthRoute);
-app.use("/api/test", testRouter);
+app.use("/api/projects", projectRoute);
+
 app.use(errorHandler);
 
 export default app;
