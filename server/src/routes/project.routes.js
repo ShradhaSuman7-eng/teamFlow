@@ -12,6 +12,7 @@ import {
 
 import validateProject from "../middleware/validateProject.js";
 import paginationmiddleware from "../middleware/pagination.middleware.js";
+import projectOwnerMiddleware from "../middleware/projectOwner.middleware.js";
 
 const router = express.Router();
 
@@ -21,8 +22,13 @@ router.get("/", authMiddleware, paginationmiddleware, getProjects);
 
 router.get("/:id", authMiddleware, getProjectById);
 
-router.patch("/:id", authMiddleware, updateProjectById);
+router.patch("/:id", authMiddleware, projectOwnerMiddleware, updateProjectById);
 
-router.delete("/:id", authMiddleware, deleteProjectById);
+router.delete(
+  "/:id",
+  authMiddleware,
+  projectOwnerMiddleware,
+  deleteProjectById,
+);
 
 export default router;
