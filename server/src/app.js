@@ -4,6 +4,7 @@ import logger from "./middleware/logger.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
 import projectRoute from "./routes/project.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import taskRoutes from "./routes/task.routes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 app.use("/api", healthRoute);
 app.use("/api/projects", projectRoute);
 app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.use(errorHandler);
 
