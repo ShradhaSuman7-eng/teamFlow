@@ -1,5 +1,7 @@
 import express from "express";
 
+import authMiddleware from "../middleware/auth.middleware.js";
+
 import {
   createProject,
   getProjects,
@@ -13,13 +15,14 @@ import paginationmiddleware from "../middleware/pagination.middleware.js";
 
 const router = express.Router();
 
-router.post("/", validateProject, createProject);
+router.post("/", authMiddleware, validateProject, createProject);
 
-router.get("/", paginationmiddleware, getProjects);
+router.get("/", authMiddleware, paginationmiddleware, getProjects);
 
-router.get("/:id", getProjectById);
+router.get("/:id", authMiddleware, getProjectById);
 
-router.patch("/:id", updateProjectById);
-router.delete("/:id", deleteProjectById);
+router.patch("/:id", authMiddleware, updateProjectById);
+
+router.delete("/:id", authMiddleware, deleteProjectById);
 
 export default router;

@@ -1,7 +1,10 @@
 import projectService from "../services/project.service.js";
 
 const createProject = async (req, res) => {
-  const project = await projectService.createProject(req.body);
+  const project = await projectService.createProject({
+    ...req.body,
+    createdBy: req.user.userId,
+  });
 
   res.status(201).json({
     success: true,

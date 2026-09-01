@@ -26,6 +26,7 @@ const getProjects = async (page, limit, status, priority, sort, order) => {
   }
 
   const projects = await Project.find(filter)
+    .populate("createdBy", "name email role")
     .sort(sortOptions)
     .skip(skip)
     .limit(limit);
@@ -45,7 +46,10 @@ const getProjects = async (page, limit, status, priority, sort, order) => {
   };
 };
 const getProjectById = async (id) => {
-  const project = await Project.findById(id);
+  const project = await Project.findById(id).populate(
+    "createdBy",
+    "name email role",
+  );
 
   if (!project) {
     throw new AppError("Project not found", 404);

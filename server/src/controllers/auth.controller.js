@@ -10,4 +10,14 @@ const register = async (req, res) => {
   });
 };
 
-export { register };
+const login = async (req, res) => {
+  const user = await authService.loginUser(req.body);
+
+  res.status(201).json({
+    success: true,
+    message: "User loggedin successfully",
+    data: user,
+  });
+};
+
+export { register, login };
