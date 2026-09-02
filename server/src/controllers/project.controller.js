@@ -24,6 +24,7 @@ const getProjects = async (req, res) => {
     priority,
     sort,
     order,
+    req.user.userId,
   );
 
   res.status(200).json({

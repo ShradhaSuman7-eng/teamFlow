@@ -6,10 +6,23 @@ const createProject = async (projectData) => {
 
   return project;
 };
-const getProjects = async (page, limit, status, priority, sort, order) => {
+
+const getProjects = async (
+  page,
+  limit,
+  status,
+  priority,
+  sort,
+  order,
+  createdBy,
+) => {
   const skip = (page - 1) * limit;
 
   const filter = {};
+
+  if (createdBy) {
+    filter.createdBy = createdBy;
+  }
 
   if (status) {
     filter.status = status;
@@ -23,6 +36,8 @@ const getProjects = async (page, limit, status, priority, sort, order) => {
 
   if (sort) {
     sortOptions[sort] = order === "asc" ? 1 : -1;
+  } else {
+    sortOptions.createdAt = -1;
   }
 
   const projects = await Project.find(filter)
@@ -45,6 +60,7 @@ const getProjects = async (page, limit, status, priority, sort, order) => {
     },
   };
 };
+
 const getProjectById = async (id) => {
   const project = await Project.findById(id).populate(
     "createdBy",
@@ -59,10 +75,24 @@ const getProjectById = async (id) => {
 };
 
 const updateProjectById = async (id, updateData) => {
-  const project = await Project.findByIdAndUpdate(id, updateData, {
+  const allowedFields = ["name", "description", "status", "priority"];
+
+  const filteredData = {};
+
+  for (const field of allowedFields) {
+    if (updateData[field] !== undefined) {
+      filteredData[field] = updateData[field];
+    }
+  }
+
+  if (Object.keys(filteredData).length === 0) {
+    throw new AppError("No valid fields provided for update", 400);
+  }
+
+  const project = await Project.findByIdAndUpdate(id, filteredData, {
     new: true,
     runValidators: true,
-  });
+  }).populate("createdBy", "name email role");
 
   if (!project) {
     throw new AppError("Project not found", 404);

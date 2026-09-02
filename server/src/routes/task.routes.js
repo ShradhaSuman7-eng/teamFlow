@@ -24,7 +24,7 @@ router.get("/", authMiddleware, validateTaskQuery, getTasks);
 router.get(
   "/:id",
   authMiddleware,
-  validateObjectId,
+  validateObjectId("id"),
   taskOwnerMiddleware,
   getTaskById,
 );
@@ -32,7 +32,7 @@ router.get(
 router.patch(
   "/:id",
   authMiddleware,
-  validateObjectId,
+  validateObjectId("id"),
   taskOwnerMiddleware,
   validateTaskUpdate,
   updateTaskById,
@@ -41,7 +41,7 @@ router.patch(
 router.delete(
   "/:id",
   authMiddleware,
-  validateObjectId,
+  validateObjectId("id"),
   taskOwnerMiddleware,
   deleteTaskById,
 );

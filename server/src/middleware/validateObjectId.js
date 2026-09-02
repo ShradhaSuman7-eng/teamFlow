@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import AppError from "../utils/AppError.js";
 
-const validateObjectId = (req, res, next) => {
-  const { id } = req.params;
+const validateObjectId = (paramName = "id") => {
+  return (req, res, next) => {
+    const id = req.params[paramName];
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new AppError("Invalid task ID", 400);
-  }
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      throw new AppError(`Invalid ${paramName}`, 400);
+    }
 
-  next();
+    next();
+  };
 };
 
 export default validateObjectId;

@@ -5,6 +5,7 @@ import errorHandler from "./middleware/error.middleware.js";
 import projectRoute from "./routes/project.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
+import projectMemberRoutes from "./routes/projectMember.routes.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/api", healthRoute);
 app.use("/api/projects", projectRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/projects", projectMemberRoutes);
 
 app.use(errorHandler);
 

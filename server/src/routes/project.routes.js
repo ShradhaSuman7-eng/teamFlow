@@ -1,6 +1,10 @@
 import express from "express";
 
 import authMiddleware from "../middleware/auth.middleware.js";
+import validateProject from "../middleware/validateProject.js";
+import paginationMiddleware from "../middleware/pagination.middleware.js";
+import projectOwnerMiddleware from "../middleware/projectOwner.middleware.js";
+import validateObjectId from "../middleware/validateObjectId.js";
 
 import {
   createProject,
@@ -10,23 +14,37 @@ import {
   deleteProjectById,
 } from "../controllers/project.controller.js";
 
-import validateProject from "../middleware/validateProject.js";
-import paginationmiddleware from "../middleware/pagination.middleware.js";
-import projectOwnerMiddleware from "../middleware/projectOwner.middleware.js";
-
 const router = express.Router();
 
+// Create project
 router.post("/", authMiddleware, validateProject, createProject);
 
-router.get("/", authMiddleware, paginationmiddleware, getProjects);
+// Get all projects
+router.get("/", authMiddleware, paginationMiddleware, getProjects);
 
-router.get("/:id", authMiddleware, getProjectById);
+// Get project by ID
+router.get(
+  "/:id",
+  authMiddleware,
+  validateObjectId("id"),
+  projectOwnerMiddleware,
+  getProjectById,
+);
 
-router.patch("/:id", authMiddleware, projectOwnerMiddleware, updateProjectById);
+// Update project
+router.patch(
+  "/:id",
+  authMiddleware,
+  validateObjectId("id"),
+  projectOwnerMiddleware,
+  updateProjectById,
+);
 
+// Delete project
 router.delete(
   "/:id",
   authMiddleware,
+  validateObjectId("id"),
   projectOwnerMiddleware,
   deleteProjectById,
 );
