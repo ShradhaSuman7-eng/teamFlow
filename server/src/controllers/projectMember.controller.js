@@ -1,7 +1,10 @@
 import projectMemberService from "../services/projectMember.service.js";
 
 const addMember = async (req, res) => {
+  console.log("REQ BODY:", req.body);
+
   const { userId, role } = req.body;
+
   const { id: projectId } = req.params;
 
   const project = await projectMemberService.addMember(projectId, userId, role);
@@ -12,7 +15,6 @@ const addMember = async (req, res) => {
     data: project,
   });
 };
-
 const getMembers = async (req, res) => {
   const { id: projectId } = req.params;
 

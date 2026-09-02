@@ -3,8 +3,8 @@ import express from "express";
 import authMiddleware from "../middleware/auth.middleware.js";
 import validateProject from "../middleware/validateProject.js";
 import paginationMiddleware from "../middleware/pagination.middleware.js";
-import projectOwnerMiddleware from "../middleware/projectOwner.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.js";
+import projectAuthorization from "../middleware/projectAuthorization.middleware.js";
 
 import {
   createProject,
@@ -27,7 +27,7 @@ router.get(
   "/:id",
   authMiddleware,
   validateObjectId("id"),
-  projectOwnerMiddleware,
+  projectAuthorization("owner", "manager", "member"),
   getProjectById,
 );
 
@@ -36,7 +36,7 @@ router.patch(
   "/:id",
   authMiddleware,
   validateObjectId("id"),
-  projectOwnerMiddleware,
+  projectAuthorization("owner"),
   updateProjectById,
 );
 
@@ -45,7 +45,7 @@ router.delete(
   "/:id",
   authMiddleware,
   validateObjectId("id"),
-  projectOwnerMiddleware,
+  projectAuthorization("owner"),
   deleteProjectById,
 );
 

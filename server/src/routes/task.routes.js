@@ -14,10 +14,17 @@ import validateTaskQuery from "../middleware/validateTaskQuery.js";
 import validateTaskUpdate from "../middleware/validateTaskUpdate.js";
 import validateObjectId from "../middleware/validateObjectId.js";
 import taskOwnerMiddleware from "../middleware/taskOwner.middleware.js";
+import taskProjectAuthorization from "../middleware/taskProjectAuthorization.middleware.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware, validateTask, createTask);
+router.post(
+  "/",
+  authMiddleware,
+  validateTask,
+  taskProjectAuthorization("owner", "manager"),
+  createTask,
+);
 
 router.get("/", authMiddleware, validateTaskQuery, getTasks);
 
