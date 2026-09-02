@@ -16,12 +16,18 @@ const createTask = async (req, res) => {
 };
 
 const getTasks = async (req, res) => {
-  const tasks = await taskService.getTasks();
+  const filters = {
+    ...req.query,
+    createdBy: req.user.userId,
+  };
+
+  const result = await taskService.getTasks(filters);
 
   res.status(200).json({
     success: true,
     message: "Tasks fetched successfully",
-    data: tasks,
+    data: result.tasks,
+    pagination: result.pagination,
   });
 };
 

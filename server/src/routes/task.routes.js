@@ -1,5 +1,7 @@
 import express from "express";
 import taskOwnerMiddleware from "../middleware/taskOwner.middleware.js";
+import validateTaskQuery from "../middleware/validateTaskQuery.js";
+import validateTaskUpdate from "../middleware/validateTaskUpdate.js";
 
 import {
   createTask,
@@ -17,9 +19,15 @@ import { deleteProjectById } from "../controllers/project.controller.js";
 const router = express.Router();
 
 router.post("/", authMiddleware, validateTask, createTask);
-router.get("/", authMiddleware, getTasks);
-router.get("/:id", authMiddleware, getTaskById);
-router.patch("/:id", authMiddleware, taskOwnerMiddleware, updateTaskById);
+router.get("/", authMiddleware, validateTaskQuery, getTasks);
+router.get("/:id", authMiddleware, taskOwnerMiddleware, getTaskById);
+router.patch(
+  "/:id",
+  authMiddleware,
+  taskOwnerMiddleware,
+  validateTaskUpdate,
+  updateTaskById,
+);
 router.delete("/:id", authMiddleware, taskOwnerMiddleware, deleteTaskById);
 
 export default router;
