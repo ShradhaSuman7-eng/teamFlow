@@ -1,7 +1,4 @@
 import express from "express";
-import taskOwnerMiddleware from "../middleware/taskOwner.middleware.js";
-import validateTaskQuery from "../middleware/validateTaskQuery.js";
-import validateTaskUpdate from "../middleware/validateTaskUpdate.js";
 
 import {
   createTask,
@@ -12,22 +9,41 @@ import {
 } from "../controllers/task.controller.js";
 
 import authMiddleware from "../middleware/auth.middleware.js";
-
 import validateTask from "../middleware/validateTask.js";
-import { deleteProjectById } from "../controllers/project.controller.js";
+import validateTaskQuery from "../middleware/validateTaskQuery.js";
+import validateTaskUpdate from "../middleware/validateTaskUpdate.js";
+import validateObjectId from "../middleware/validateObjectId.js";
+import taskOwnerMiddleware from "../middleware/taskOwner.middleware.js";
 
 const router = express.Router();
 
 router.post("/", authMiddleware, validateTask, createTask);
+
 router.get("/", authMiddleware, validateTaskQuery, getTasks);
-router.get("/:id", authMiddleware, taskOwnerMiddleware, getTaskById);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  validateObjectId,
+  taskOwnerMiddleware,
+  getTaskById,
+);
+
 router.patch(
   "/:id",
   authMiddleware,
+  validateObjectId,
   taskOwnerMiddleware,
   validateTaskUpdate,
   updateTaskById,
 );
-router.delete("/:id", authMiddleware, taskOwnerMiddleware, deleteTaskById);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  validateObjectId,
+  taskOwnerMiddleware,
+  deleteTaskById,
+);
 
 export default router;
