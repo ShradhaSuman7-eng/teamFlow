@@ -88,8 +88,38 @@ const removeMember = async (projectId, userId) => {
 
   return project;
 };
+
+const updateMemberRole = async (projectId, userId, role) => {
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  // Owner's role cannot be changed
+  if (project.createdBy.toString() === userId.toString()) {
+    throw new AppError("Project owner role cannot be changed", 400);
+  }
+
+  // Find the member
+  const member = project.members.find(
+    (member) => member.user.toString() === userId.toString(),
+  );
+
+  if (!member) {
+    throw new AppError("User is not a member of this project", 404);
+  }
+
+  // Update role
+  member.role = role;
+
+  await project.save();
+
+  return project;
+};
 export default {
   addMember,
   getMembers,
   removeMember,
+  updateMemberRole,
 };

@@ -38,5 +38,21 @@ const removeMember = async (req, res) => {
     data: project,
   });
 };
+const updateMemberRole = async (req, res) => {
+  const { id: projectId, userId } = req.params;
+  const { role } = req.body;
 
-export { addMember, getMembers, removeMember };
+  const project = await projectMemberService.updateMemberRole(
+    projectId,
+    userId,
+    role,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Member role updated successfully",
+    data: project,
+  });
+};
+
+export { addMember, getMembers, removeMember, updateMemberRole };
