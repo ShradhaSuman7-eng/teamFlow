@@ -3,6 +3,7 @@ import express from "express";
 import authMiddleware from "../middleware/auth.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.js";
 import projectOwnerMiddleware from "../middleware/projectOwner.middleware.js";
+import validateProjectMember from "../middleware/validateProjectMember.js";
 
 import {
   addMember,
@@ -16,6 +17,7 @@ router.post(
   "/:id/members",
   authMiddleware,
   validateObjectId("id"),
+  validateProjectMember,
   projectOwnerMiddleware,
   addMember,
 );

@@ -1,6 +1,7 @@
 import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
 import AppError from "../utils/AppError.js";
+import Task from "../models/task.model.js";
 
 const addMember = async (projectId, userId, role) => {
   const project = await Project.findById(projectId);
@@ -53,17 +54,39 @@ const removeMember = async (projectId, userId) => {
     throw new AppError("Project not found", 404);
   }
 
-  const memnerIndex = project.members.findIndex(
-    (member) => member.user.toString() === userId,
+  // Owner cannot be removed as a member
+  if (project.createdBy.toString() === userId.toString()) {
+    throw new AppError("Project owner cannot be removed", 400);
+  }
+
+  // Find member
+  const memberIndex = project.members.findIndex(
+    (member) => member.user.toString() === userId.toString(),
   );
 
-  if (memnerIndex === -1) {
+  if (memberIndex === -1) {
     throw new AppError("User is not a member of this project", 404);
   }
 
-  project.members.splice(memnerIndex, 1);
+  // Check assigned tasks
+  const assignedTasksCount = await Task.countDocuments({
+    project: projectId,
+    assignedTo: userId,
+  });
+
+  if (assignedTasksCount > 0) {
+    throw new AppError(
+      `Cannot remove member. User has ${assignedTasksCount} assigned task(s). Reassign the tasks first.`,
+      409,
+    );
+  }
+
+  // Remove member
+  project.members.splice(memberIndex, 1);
 
   await project.save();
+
+  return project;
 };
 export default {
   addMember,
