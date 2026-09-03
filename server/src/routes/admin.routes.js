@@ -54,4 +54,12 @@ router.get(
   adminMiddleware,
   adminController.getProjectByIdController,
 );
+
+router.delete(
+  "/projects/:id",
+  authMiddleware,
+  validateObjectId("id"),
+  adminMiddleware,
+  adminController.deleteProjectController,
+);
 export default router;

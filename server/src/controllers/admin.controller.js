@@ -55,10 +55,21 @@ const getProjectByIdController = async (req, res) => {
   });
 };
 
+const deleteProjectController = async (req, res) => {
+  const project = await adminService.deleteProject(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Project deleted successfully",
+    data: project,
+  });
+};
+
 export default {
   getAllUsersController,
   getUserByIdController,
   updateUserRoleController,
   getAllProjectsController,
   getProjectByIdController,
+  deleteProjectController,
 };

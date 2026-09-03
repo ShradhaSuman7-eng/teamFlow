@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import AppError from "../utils/AppError.js";
 import Project from "../models/project.model.js";
+import Task from "../models/task.model.js";
 
 const getAllUsers = async () => {
   const users = await User.find().select("-password").sort({ createdAt: -1 });
@@ -71,10 +72,33 @@ const getProjectById = async (projectId) => {
   return project;
 };
 
+const deleteProject = async (projectId) => {
+  const project = await Project.findById(projectId);
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  const taskCount = await Task.countDocuments({
+    project: projectId,
+  });
+
+  if (taskCount > 0) {
+    throw new AppError(
+      `Cannot delete project. Project has ${taskCount} task(s). Delete or reassign the tasks first.`,
+      409,
+    );
+  }
+
+  await Project.findByIdAndDelete(projectId);
+
+  return project;
+};
 export default {
   getAllUsers,
   getUserById,
   updateUserRole,
   getAllProjects,
   getProjectById,
+  deleteProject,
 };
