@@ -15,6 +15,7 @@ import validateTaskUpdate from "../middleware/validateTaskUpdate.js";
 import validateObjectId from "../middleware/validateObjectId.js";
 import taskProjectAuthorization from "../middleware/taskProjectAuthorization.middleware.js";
 import taskAuthorization from "../middleware/taskAuthorization.middleware.js";
+import taskListingAuthorization from "../middleware/tastaskListingAuthorization.middleware.js";
 
 const router = express.Router();
 
@@ -28,8 +29,13 @@ router.post(
 );
 
 // Get All Tasks
-router.get("/", authMiddleware, validateTaskQuery, getTasks);
-
+router.get(
+  "/",
+  authMiddleware,
+  validateTaskQuery,
+  taskListingAuthorization,
+  getTasks,
+);
 // Get Task By ID
 router.get(
   "/:id",

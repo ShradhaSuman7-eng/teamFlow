@@ -18,8 +18,11 @@ const createTask = async (req, res) => {
 const getTasks = async (req, res) => {
   const filters = {
     ...req.query,
-    createdBy: req.user.userId,
+    taskAccess: req.taskAccess,
+    userId: req.user.userId,
   };
+
+  console.log("TASK ACCESS:", req.taskAccess);
 
   const result = await taskService.getTasks(filters);
 
@@ -45,7 +48,6 @@ const getTaskById = async (req, res) => {
 
 const updateTaskById = async (req, res) => {
   const id = req.params.id;
-
   const newData = req.body;
 
   const task = await taskService.updateTaskById(id, newData);
@@ -61,6 +63,7 @@ const deleteTaskById = async (req, res) => {
   const id = req.params.id;
 
   const task = await taskService.deleteTaskById(id);
+
   res.status(200).json({
     success: true,
     message: "Task deleted successfully",

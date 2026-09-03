@@ -6,17 +6,32 @@ import AppError from "../utils/AppError.js";
 const createTask = async (taskData) => {
   const { project, assignedTo } = taskData;
 
+  // Check if project exists
   const existingProject = await Project.findById(project);
 
   if (!existingProject) {
     throw new AppError("Project not found", 404);
   }
 
+  // Validate assigned user
   if (assignedTo) {
     const user = await User.findById(assignedTo);
 
     if (!user) {
       throw new AppError("Assigned user not found", 404);
+    }
+
+    // Check if assigned user is a project member
+    const isProjectMember = existingProject.members.some(
+      (member) => member.user.toString() === assignedTo.toString(),
+    );
+
+    // Check if assigned user is project owner
+    const isProjectOwner =
+      existingProject.createdBy.toString() === assignedTo.toString();
+
+    if (!isProjectMember && !isProjectOwner) {
+      throw new AppError("Assigned user is not a member of this project", 400);
     }
   }
 
@@ -28,49 +43,83 @@ const createTask = async (taskData) => {
 const getTasks = async (filters) => {
   const query = {};
 
-  if (filters.createdBy) {
-    query.createdBy = filters.createdBy;
+  const { fullAccessProjectIds, assignedOnlyProjectIds } = filters.taskAccess;
+
+  const authorizationConditions = [];
+
+  // Owner / Manager
+  if (fullAccessProjectIds.length > 0) {
+    authorizationConditions.push({
+      project: { $in: fullAccessProjectIds },
+    });
   }
 
+  // Member
+  if (assignedOnlyProjectIds.length > 0) {
+    authorizationConditions.push({
+      project: { $in: assignedOnlyProjectIds },
+      assignedTo: filters.userId,
+    });
+  }
+
+  // User has no access to any project
+  if (authorizationConditions.length === 0) {
+    query._id = null;
+  } else {
+    query.$or = authorizationConditions;
+  }
+
+  // Status filter
   if (filters.status) {
     query.status = filters.status;
   }
 
+  // Priority filter
   if (filters.priority) {
     query.priority = filters.priority;
   }
 
+  // Project filter
   if (filters.project) {
     query.project = filters.project;
   }
 
+  // Search filter
   if (filters.search) {
-    query.$or = [
+    query.$and = [
       {
-        title: {
-          $regex: filters.search,
-          $options: "i",
-        },
-      },
-      {
-        description: {
-          $regex: filters.search,
-          $options: "i",
-        },
+        $or: [
+          {
+            title: {
+              $regex: filters.search,
+              $options: "i",
+            },
+          },
+          {
+            description: {
+              $regex: filters.search,
+              $options: "i",
+            },
+          },
+        ],
       },
     ];
   }
 
+  // Pagination
   const page = Number(filters.page) || 1;
   const limit = Number(filters.limit) || 10;
 
   const skip = (page - 1) * limit;
 
+  // Sorting
   const sortBy = filters.sortBy || "createdAt";
   const order = filters.order === "asc" ? 1 : -1;
 
+  // Count authorized tasks
   const totalTasks = await Task.countDocuments(query);
 
+  // Fetch tasks
   const tasks = await Task.find(query)
     .sort({ [sortBy]: order })
     .skip(skip)
@@ -118,28 +167,59 @@ const updateTaskById = async (id, updatedData) => {
 
   const filteredData = {};
 
+  // Keep only allowed fields
   for (const field of allowedFields) {
     if (updatedData[field] !== undefined) {
       filteredData[field] = updatedData[field];
     }
   }
 
-  if (filteredData.project) {
-    const project = await Project.findById(filteredData.project);
+  // Get existing task
+  const existingTask = await Task.findById(id);
 
-    if (!project) {
-      throw new AppError("Project not found", 404);
-    }
+  if (!existingTask) {
+    throw new AppError("Task not found", 404);
   }
 
-  if (filteredData.assignedTo) {
-    const user = await User.findById(filteredData.assignedTo);
+  // Determine final project
+  const finalProjectId = filteredData.project || existingTask.project;
+
+  // Get final project
+  const project = await Project.findById(finalProjectId);
+
+  if (!project) {
+    throw new AppError("Project not found", 404);
+  }
+
+  // Determine final assigned user
+  const finalAssignedTo =
+    filteredData.assignedTo !== undefined
+      ? filteredData.assignedTo
+      : existingTask.assignedTo;
+
+  // Validate assigned user
+  if (finalAssignedTo) {
+    const user = await User.findById(finalAssignedTo);
 
     if (!user) {
       throw new AppError("Assigned user not found", 404);
     }
+
+    // Check if assigned user is a member of final project
+    const isProjectMember = project.members.some(
+      (member) => member.user.toString() === finalAssignedTo.toString(),
+    );
+
+    // Check if assigned user is owner of final project
+    const isProjectOwner =
+      project.createdBy.toString() === finalAssignedTo.toString();
+
+    if (!isProjectMember && !isProjectOwner) {
+      throw new AppError("Assigned user is not a member of this project", 400);
+    }
   }
 
+  // Update task
   const task = await Task.findByIdAndUpdate(id, filteredData, {
     returnDocument: "after",
     runValidators: true,
@@ -154,6 +234,7 @@ const updateTaskById = async (id, updatedData) => {
 
   return task;
 };
+
 const deleteTaskById = async (id) => {
   const task = await Task.findByIdAndDelete(id);
 
