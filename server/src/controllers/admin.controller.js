@@ -1,3 +1,4 @@
+import Task from "../models/task.model.js";
 import adminService from "../services/admin.service.js";
 
 const getAllUsersController = async (req, res) => {
@@ -64,6 +65,34 @@ const deleteProjectController = async (req, res) => {
     data: project,
   });
 };
+const getAllTasksController = async (req, res) => {
+  const tasks = await adminService.getAllTasks();
+
+  res.status(200).json({
+    success: true,
+    message: "Tasks fetched successfully",
+    data: tasks,
+  });
+};
+
+const getTaskByIdController = async (req, res) => {
+  const task = await adminService.getTaskById(req.params.id);
+  res.status(200).json({
+    success: true,
+    message: "Task fetched successfully",
+    data: task,
+  });
+};
+
+const deleteTaskController = async (req, res) => {
+  const task = await adminService.deleteTask(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Task deleted successfully",
+    data: task,
+  });
+};
 
 export default {
   getAllUsersController,
@@ -72,4 +101,7 @@ export default {
   getAllProjectsController,
   getProjectByIdController,
   deleteProjectController,
+  getAllTasksController,
+  getTaskByIdController,
+  deleteTaskController,
 };

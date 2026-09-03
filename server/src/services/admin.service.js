@@ -94,6 +94,42 @@ const deleteProject = async (projectId) => {
 
   return project;
 };
+
+const getAllTasks = async () => {
+  const tasks = await Task.find()
+    .populate("project", "name status priority")
+    .populate("createdBy", "name email role")
+    .populate("assignedTo", "name email role")
+    .sort({ createdAt: -1 });
+
+  return tasks;
+};
+
+const getTaskById = async (taskId) => {
+  const task = await Task.findById(taskId)
+    .populate("project", "name status priority")
+    .populate("createdBy", "name email role")
+    .populate("assignedTo", "name email role");
+
+  if (!task) {
+    throw new AppError("Task not found", 404);
+  }
+
+  return task;
+};
+
+const deleteTask = async (taskId) => {
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    throw new AppError("Task not found", 404);
+  }
+
+  await Task.findByIdAndDelete(taskId);
+
+  return task;
+};
+
 export default {
   getAllUsers,
   getUserById,
@@ -101,4 +137,7 @@ export default {
   getAllProjects,
   getProjectById,
   deleteProject,
+  getAllTasks,
+  getTaskById,
+  deleteTask,
 };

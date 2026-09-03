@@ -50,7 +50,7 @@ const updateTaskById = async (req, res) => {
   const id = req.params.id;
   const newData = req.body;
 
-  const task = await taskService.updateTaskById(id, newData);
+  const task = await taskService.updateTaskById(id, newData, req.user.userId);
 
   res.status(200).json({
     success: true,
@@ -58,7 +58,6 @@ const updateTaskById = async (req, res) => {
     data: task,
   });
 };
-
 const deleteTaskById = async (req, res) => {
   const id = req.params.id;
 

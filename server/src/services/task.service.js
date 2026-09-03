@@ -154,7 +154,7 @@ const getTaskById = async (id) => {
   return task;
 };
 
-const updateTaskById = async (id, updatedData) => {
+const updateTaskById = async (id, updatedData, userId) => {
   const allowedFields = [
     "title",
     "description",
@@ -189,6 +189,37 @@ const updateTaskById = async (id, updatedData) => {
 
   if (!project) {
     throw new AppError("Project not found", 404);
+  }
+
+  // Check if task is being moved to another project
+  const isProjectChanging =
+    filteredData.project &&
+    filteredData.project.toString() !== existingTask.project.toString();
+
+  if (isProjectChanging) {
+    let newProjectRole = null;
+
+    // Check if user is the owner of the new project
+    if (project.createdBy.toString() === userId.toString()) {
+      newProjectRole = "owner";
+    } else {
+      // Check user's role in the new project
+      const member = project.members.find(
+        (member) => member.user.toString() === userId.toString(),
+      );
+
+      if (member) {
+        newProjectRole = member.role;
+      }
+    }
+
+    // Only owner or manager can move a task
+    if (!["owner", "manager"].includes(newProjectRole)) {
+      throw new AppError(
+        "You do not have permission to move this task to the selected project",
+        403,
+      );
+    }
   }
 
   // Determine final assigned user

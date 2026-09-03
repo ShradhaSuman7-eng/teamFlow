@@ -62,4 +62,27 @@ router.delete(
   adminMiddleware,
   adminController.deleteProjectController,
 );
+
+router.get(
+  "/tasks",
+  authMiddleware,
+  adminMiddleware,
+  adminController.getAllTasksController,
+);
+
+router.get(
+  "/tasks/:id",
+  authMiddleware,
+  validateObjectId("id"),
+  adminMiddleware,
+  adminController.getTaskByIdController,
+);
+
+router.delete(
+  "/tasks/:id",
+  authMiddleware,
+  validateObjectId("id"),
+  adminMiddleware,
+  adminController.deleteTaskController,
+);
 export default router;
