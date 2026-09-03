@@ -6,6 +6,7 @@ import projectRoute from "./routes/project.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 import projectMemberRoutes from "./routes/projectMember.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/projects", projectRoute);
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectMemberRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(errorHandler);
 
