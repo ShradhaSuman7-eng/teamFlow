@@ -50,21 +50,26 @@ const validateTaskQuery = (req, res, next) => {
     throw new AppError("Invalid sort order. Use 'asc' or 'desc'", 400);
   }
 
-  // Validate pagination
-  const page = Number(req.query.page);
-  const limit = Number(req.query.limit);
+  // Validate page
+  if (req.query.page !== undefined) {
+    const page = Number(req.query.page);
 
-  if (req.query.page && (!Number.isInteger(page) || page < 1)) {
-    throw new AppError("Page must be a positive integer", 400);
+    if (!Number.isInteger(page) || page < 1) {
+      throw new AppError("Page must be a positive integer", 400);
+    }
   }
 
-  if (req.query.limit && (!Number.isInteger(limit) || limit < 1)) {
-    throw new AppError("Limit must be a positive integer", 400);
-  }
+  // Validate limit
+  if (req.query.limit !== undefined) {
+    const limit = Number(req.query.limit);
 
-  // Prevent very large queries
-  if (req.query.limit && limit > 100) {
-    throw new AppError("Limit cannot exceed 100", 400);
+    if (!Number.isInteger(limit) || limit < 1) {
+      throw new AppError("Limit must be a positive integer", 400);
+    }
+
+    if (limit > 100) {
+      throw new AppError("Limit cannot exceed 100", 400);
+    }
   }
 
   next();
