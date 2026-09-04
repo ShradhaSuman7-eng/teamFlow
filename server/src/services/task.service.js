@@ -250,6 +250,30 @@ const updateTaskById = async (id, updatedData, userId) => {
     }
   }
 
+  // Check if requester is changing task assignment
+  if (filteredData.assignedTo !== undefined) {
+    let requesterRole = null;
+
+    // Check if requester is project owner
+    if (project.createdBy.toString() === userId.toString()) {
+      requesterRole = "owner";
+    } else {
+      // Check requester's project membership role
+      const requesterMember = project.members.find(
+        (member) => member.user.toString() === userId.toString(),
+      );
+
+      if (requesterMember) {
+        requesterRole = requesterMember.role;
+      }
+    }
+
+    // Only owner and manager can change task assignment
+    if (!["owner", "manager"].includes(requesterRole)) {
+      throw new AppError("You do not have permission to assign this task", 403);
+    }
+  }
+
   // Update task
   const task = await Task.findByIdAndUpdate(id, filteredData, {
     returnDocument: "after",

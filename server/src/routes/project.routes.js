@@ -5,6 +5,7 @@ import validateProject from "../middleware/validateProject.js";
 import paginationMiddleware from "../middleware/pagination.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.js";
 import projectAuthorization from "../middleware/projectAuthorization.middleware.js";
+import validateProjectUpdate from "../middleware/validateProjectUpdate.js";
 
 import {
   createProject,
@@ -36,6 +37,7 @@ router.patch(
   "/:id",
   authMiddleware,
   validateObjectId("id"),
+  validateProjectUpdate,
   projectAuthorization("owner"),
   updateProjectById,
 );
