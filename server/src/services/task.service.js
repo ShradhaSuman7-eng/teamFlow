@@ -3,6 +3,16 @@ import User from "../models/user.model.js";
 import Project from "../models/project.model.js";
 import AppError from "../utils/AppError.js";
 
+const isValidStatusTransition = (currentStatus, newStatus) => {
+  const transictions = {
+    todo: ["todo", "in-progress"],
+    "in-progress": ["in-progress", "completed"],
+    completed: ["compleed"],
+  };
+
+  return transictions[currentStatus]?.includes(newStatus);
+};
+
 const createTask = async (taskData) => {
   const { project, assignedTo } = taskData;
 
@@ -179,6 +189,20 @@ const updateTaskById = async (id, updatedData, userId) => {
 
   if (!existingTask) {
     throw new AppError("Task not found", 404);
+  }
+
+  if (filteredData.status !== undefined) {
+    const isValidTransition = isValidStatusTransition(
+      existingTask.status,
+      filteredData.status,
+    );
+
+    if (!isValidTransition) {
+      throw new AppError(
+        `Invalid status transition: ${existingTask.status} → ${filteredData.status}`,
+        400,
+      );
+    }
   }
 
   // Determine final project
