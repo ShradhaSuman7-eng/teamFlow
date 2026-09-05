@@ -3,18 +3,37 @@ import User from "../models/user.model.js";
 import Project from "../models/project.model.js";
 import AppError from "../utils/AppError.js";
 
+// Check valid task status transition
 const isValidStatusTransition = (currentStatus, newStatus) => {
-  const transictions = {
+  const transitions = {
     todo: ["todo", "in-progress"],
     "in-progress": ["in-progress", "completed"],
-    completed: ["compleed"],
+    completed: ["completed"],
   };
 
-  return transictions[currentStatus]?.includes(newStatus);
+  return transitions[currentStatus]?.includes(newStatus);
 };
 
+// Check if due date is today or in the future
+const isDueDateValid = (dueDate) => {
+  const today = new Date();
+  const date = new Date(dueDate);
+
+  // Remove time and compare only dates
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  return date >= today;
+};
+
+// Create Task
 const createTask = async (taskData) => {
-  const { project, assignedTo } = taskData;
+  const { project, assignedTo, dueDate } = taskData;
+
+  // Check due date
+  if (dueDate && !isDueDateValid(dueDate)) {
+    throw new AppError("Due date cannot be in the past", 400);
+  }
 
   // Check if project exists
   const existingProject = await Project.findById(project);
@@ -50,6 +69,7 @@ const createTask = async (taskData) => {
   return task;
 };
 
+// Get Tasks
 const getTasks = async (filters) => {
   const query = {};
 
@@ -151,6 +171,7 @@ const getTasks = async (filters) => {
   };
 };
 
+// Get Task By ID
 const getTaskById = async (id) => {
   const task = await Task.findById(id)
     .populate("project", "name description status priority")
@@ -164,6 +185,7 @@ const getTaskById = async (id) => {
   return task;
 };
 
+// Update Task
 const updateTaskById = async (id, updatedData, userId) => {
   const allowedFields = [
     "title",
@@ -191,6 +213,7 @@ const updateTaskById = async (id, updatedData, userId) => {
     throw new AppError("Task not found", 404);
   }
 
+  // Validate status transition
   if (filteredData.status !== undefined) {
     const isValidTransition = isValidStatusTransition(
       existingTask.status,
@@ -202,6 +225,13 @@ const updateTaskById = async (id, updatedData, userId) => {
         `Invalid status transition: ${existingTask.status} → ${filteredData.status}`,
         400,
       );
+    }
+  }
+
+  // Validate due date
+  if (filteredData.dueDate !== undefined) {
+    if (!isDueDateValid(filteredData.dueDate)) {
+      throw new AppError("Due date cannot be in the past", 400);
     }
   }
 
@@ -314,6 +344,7 @@ const updateTaskById = async (id, updatedData, userId) => {
   return task;
 };
 
+// Delete Task
 const deleteTaskById = async (id) => {
   const task = await Task.findByIdAndDelete(id);
 
